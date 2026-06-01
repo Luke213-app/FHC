@@ -156,6 +156,12 @@ export function MegaMenuNav() {
         >
           NEW
         </Link>
+        <Link
+          href="/pre-owned"
+          className="text-[12px] font-medium uppercase tracking-[0.5px] text-charcoal hover:opacity-60 transition-opacity"
+        >
+          PRE-OWNED
+        </Link>
       </div>
 
       {/* Desktop mega menu panel */}
@@ -291,6 +297,13 @@ export function MobileMegaMenuContent({ onLinkClick }: { onLinkClick: () => void
         onClick={onLinkClick}
       >
         NEW
+      </Link>
+      <Link
+        href="/pre-owned"
+        className="block text-nav py-2"
+        onClick={onLinkClick}
+      >
+        PRE-OWNED
       </Link>
     </div>
   );
