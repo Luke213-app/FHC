@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import posthog from "posthog-js";
 import { useAuth } from "@/components/auth-provider";
 
 const mockOrders = [
@@ -96,6 +97,8 @@ export default function AccountPage() {
 
       <button
         onClick={() => {
+          posthog.capture("user_logged_out", { email: user.email });
+          posthog.reset();
           logout();
           router.push("/");
         }}

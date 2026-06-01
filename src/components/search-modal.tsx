@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
+import posthog from "posthog-js";
 import { CloseIcon, SearchIcon } from "./icons";
 import { products } from "@/data/products";
 
@@ -17,6 +18,8 @@ function productGradient(hex: string): string {
 export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastQueryRef = useRef("");
+  const lastResultCountRef = useRef(0);
 
   const results = useMemo(() => {
     if (!query.trim()) return [];
@@ -25,10 +28,25 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   }, [query]);
 
   useEffect(() => {
+    if (query.trim()) {
+      lastQueryRef.current = query.trim();
+      lastResultCountRef.current = results.length;
+    }
+  }, [query, results.length]);
+
+  useEffect(() => {
     if (isOpen) {
       inputRef.current?.focus();
       document.body.style.overflow = "hidden";
     } else {
+      if (lastQueryRef.current) {
+        posthog.capture("product_searched", {
+          query: lastQueryRef.current,
+          result_count: lastResultCountRef.current,
+        });
+        lastQueryRef.current = "";
+        lastResultCountRef.current = 0;
+      }
       setQuery("");
       document.body.style.overflow = "";
     }
@@ -86,7 +104,15 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       <Link
                         key={product.id}
                         href={`/products/${product.slug}`}
-                        onClick={onClose}
+                        onClick={() => {
+                          posthog.capture("search_result_clicked", {
+                            query: query.trim(),
+                            product_id: product.id,
+                            product_name: product.name,
+                            product_slug: product.slug,
+                          });
+                          onClose();
+                        }}
                         className="flex items-center gap-4 p-2 rounded hover:bg-cream transition-colors"
                       >
                         <div
