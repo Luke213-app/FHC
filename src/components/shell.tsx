@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { AnnouncementBar } from "./announcement-bar";
 import { Header } from "./header";
 import { Footer } from "./footer";
@@ -11,6 +12,12 @@ import { AuthProvider } from "./auth-provider";
 function ShellInner({ children }: { children: React.ReactNode }) {
   const { openCart, itemCount } = useCart();
   const { wishlistItems } = useWishlist();
+  const pathname = usePathname();
+
+  // Seller panel is a standalone SaaS surface — no storefront chrome.
+  if (pathname?.startsWith("/panel-sprzedawcy")) {
+    return <main className="flex-1">{children}</main>;
+  }
 
   return (
     <>
